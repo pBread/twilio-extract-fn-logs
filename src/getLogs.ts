@@ -6,7 +6,9 @@ import type { LogInstance } from "twilio/lib/rest/serverless/v1/service/environm
 
 dotenv.config();
 
-const SAVE_TIME = 3 * 1000; // controls how frequently the logs are saved to disk
+// controls how frequently the logs are saved to disk
+// in miliseconds
+const SAVE_TIME = 3 * 1000;
 
 // month index starts at 0; 4 = May
 const START_DATE = new Date(2024, 4, 22, 0, 0, 0);
