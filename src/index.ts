@@ -6,8 +6,11 @@ import type { LogInstance } from "twilio/lib/rest/serverless/v1/service/environm
 
 dotenv.config();
 
-const SAVE_TIME = 10 * 1000; // controls how frequently the logs are saved to disk
-setInterval(saveLogChunk, SAVE_TIME);
+const SAVE_TIME = 3 * 1000; // controls how frequently the logs are saved to disk
+
+// month index starts at 0; 4 = May
+const START_DATE = new Date(2024, 4, 22, 0, 0, 0);
+const END_DATE = new Date(2024, 4, 30, 14, 0, 0);
 
 const {
   ACCOUNT_SID: accountSid,
@@ -19,17 +22,20 @@ const {
 } = process.env;
 const client = twilio(TWILIO_API_KEY, TWILIO_API_SECRET, { accountSid });
 
+const dataDir = path.join(__dirname, "../data");
+
 let logs: LogInstance[] = [];
 let logCount = 0;
 
 console.log("==script started==");
+
 client.serverless.v1
   .services(FUNCTION_SERVICE_SID)
   .environments(FUNCTION_ENVIRONMENT_SID)
   .logs.each(
     {
-      startDate: new Date("2024-05-28T19:43:47.000Z"),
-      endDate: new Date("2024-05-30T20:22:47.000Z"),
+      startDate: START_DATE,
+      endDate: END_DATE,
       functionSid: FUNCTION_SID,
     },
     (log) => {
@@ -38,7 +44,6 @@ client.serverless.v1
     }
   );
 
-const dataDir = path.join(__dirname, "../data");
 async function countChunks() {
   const files = await fs.promises.readdir(dataDir);
   console.log(files);
@@ -46,6 +51,7 @@ async function countChunks() {
   return files.length;
 }
 
+setInterval(saveLogChunk, SAVE_TIME);
 async function saveLogChunk() {
   const logsToSave = [...logs];
   logs = [];
