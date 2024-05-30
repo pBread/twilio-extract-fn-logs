@@ -25,6 +25,7 @@ const {
 const client = twilio(TWILIO_API_KEY, TWILIO_API_SECRET, { accountSid });
 
 const dataDir = path.join(__dirname, "../data");
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
 let logs: LogInstance[] = [];
 let logCount = 0;
@@ -68,7 +69,7 @@ async function saveLogChunk() {
   const chunkName = `chunk-${fileCount} ${localDateTimeStr}.json`;
 
   const chunkFile = path.join(dataDir, chunkName);
-  fs.writeFileSync(chunkFile, JSON.stringify(logsToSave, null, 2), "utf-8");
+  fs.writeFileSync(chunkFile, JSON.stringify(logsToSave, null, 2), {});
   console.log(
     `Saved Chunk: ./data/${chunkName} \n\tTotal Logs: ${logCount}\n\tThis Chunk: ${logsToSave.length}`
   );
