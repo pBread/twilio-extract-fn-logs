@@ -12,8 +12,8 @@ const SAVE_TIME = 3 * 1000;
 
 // month index starts at 0; 4 = May
 const START_DATE = new Date(2024, 4, 22, 0, 0, 0);
-const END_DATE = new Date(2024, 4, 23, 0, 0, 0);
-
+const END_DATE = new Date();
+// 2024, 4, 23, 0, 0, 0
 const {
   ACCOUNT_SID: accountSid,
   TWILIO_API_KEY,
@@ -48,8 +48,6 @@ client.serverless.v1
 
 async function countChunks() {
   const files = await fs.promises.readdir(dataDir);
-  console.log(files);
-
   return files.length;
 }
 
@@ -60,14 +58,18 @@ async function saveLogChunk() {
 
   let lastDateCreated: Date | string = logsToSave[0]?.dateCreated;
   if (!lastDateCreated) return console.log("No logs to save");
-  lastDateCreated = new Date(lastDateCreated).toISOString();
+
+  let localDateTimeStr =
+    lastDateCreated.toLocaleDateString().replaceAll("/", "-") +
+    " " +
+    lastDateCreated.toTimeString();
 
   const fileCount = await countChunks();
-  const chunkName = `log-${fileCount} ${lastDateCreated}.json`;
+  const chunkName = `chunk-${fileCount} ${localDateTimeStr}.json`;
 
   const chunkFile = path.join(dataDir, chunkName);
   fs.writeFileSync(chunkFile, JSON.stringify(logsToSave, null, 2), "utf-8");
   console.log(
-    `Saved Logs ${chunkName} \n\tTotal Logs: ${logCount}\n\tThis Chunk: ${logsToSave.length}`
+    `Saved Chunk: ./data/${chunkName} \n\tTotal Logs: ${logCount}\n\tThis Chunk: ${logsToSave.length}`
   );
 }
