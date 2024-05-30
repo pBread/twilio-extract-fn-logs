@@ -1,0 +1,10 @@
+{
+  "author": "https://github.com/pBread",
+  "name": "extract-function-logs",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
