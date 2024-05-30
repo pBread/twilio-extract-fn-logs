@@ -5,6 +5,14 @@
   "scripts": {
     "dev": "ts-node src/index.ts"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "twilio": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.13",
+    "@types/twilio": "^3.19.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
 }
