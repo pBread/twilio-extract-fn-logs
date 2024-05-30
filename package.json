@@ -3,7 +3,8 @@
   "name": "extract-function-logs",
   "version": "1.0.0",
   "scripts": {
-    "dev": "ts-node src/index.ts"
+    "start": "ts-node src/getLogs.ts",
+    "combine": ""
   },
   "dependencies": {
     "dotenv": "^16.4.5",
