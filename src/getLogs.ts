@@ -10,7 +10,7 @@ const SAVE_TIME = 3 * 1000; // controls how frequently the logs are saved to dis
 
 // month index starts at 0; 4 = May
 const START_DATE = new Date(2024, 4, 22, 0, 0, 0);
-const END_DATE = new Date(2024, 4, 30, 14, 0, 0);
+const END_DATE = new Date(2024, 4, 23, 0, 0, 0);
 
 const {
   ACCOUNT_SID: accountSid,
