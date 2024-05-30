@@ -1,39 +1,65 @@
 import dotenv from "dotenv";
 import twilio from "twilio";
+import fs from "fs";
+import path from "path";
+import type { LogInstance } from "twilio/lib/rest/serverless/v1/service/environment/log";
+
 dotenv.config();
+
+const SAVE_TIME = 10 * 1000; // controls how frequently the logs are saved to disk
+setInterval(saveLogChunk, SAVE_TIME);
 
 const {
   ACCOUNT_SID: accountSid,
   TWILIO_API_KEY,
   TWILIO_API_SECRET,
   FUNCTION_SERVICE_SID,
+  FUNCTION_ENVIRONMENT_SID,
   FUNCTION_SID,
 } = process.env;
 const client = twilio(TWILIO_API_KEY, TWILIO_API_SECRET, { accountSid });
 
+let logs: LogInstance[] = [];
+let logCount = 0;
+
 console.log("==script started==");
-(async () => {
-  const envSid = await getEnvironmentSid(FUNCTION_SERVICE_SID);
-  console.log(`Environment SID: ${envSid}`);
-})();
+client.serverless.v1
+  .services(FUNCTION_SERVICE_SID)
+  .environments(FUNCTION_ENVIRONMENT_SID)
+  .logs.each(
+    {
+      startDate: new Date("2024-05-28T19:43:47.000Z"),
+      endDate: new Date("2024-05-30T20:22:47.000Z"),
+      functionSid: FUNCTION_SID,
+    },
+    (log) => {
+      logs.push(log);
+      logCount++;
+    }
+  );
 
-async function getEnvironmentSid(fnSvcSid: string) {
-  const environments = await client.serverless.v1
-    .services(fnSvcSid)
-    .environments.list();
+const dataDir = path.join(__dirname, "../data");
+async function countChunks() {
+  const files = await fs.promises.readdir(dataDir);
+  console.log(files);
 
-  if (environments.length !== 1) {
-    console.error(
-      `Expected one environment, receieved ${environments.length}`,
-      environments
-    );
+  return files.length;
+}
 
-    throw Error(`Expected one environment, receieved ${environments.length}`);
-  }
-  const environmentSid = environments[0].sid;
+async function saveLogChunk() {
+  const logsToSave = [...logs];
+  logs = [];
 
-  if (!environmentSid)
-    throw Error(`Invalid Environment SID. Received: ${environmentSid}`);
+  let lastDateCreated: Date | string = logsToSave[0]?.dateCreated;
+  if (!lastDateCreated) return console.log("No logs to save");
+  lastDateCreated = new Date(lastDateCreated).toISOString();
 
-  return environmentSid;
+  const fileCount = await countChunks();
+  const chunkName = `log-${fileCount} ${lastDateCreated}.json`;
+
+  const chunkFile = path.join(dataDir, chunkName);
+  fs.writeFileSync(chunkFile, JSON.stringify(logsToSave, null, 2), "utf-8");
+  console.log(
+    `Saved Logs ${chunkName} \n\tTotal Logs: ${logCount}\n\tThis Chunk: ${logsToSave.length}`
+  );
 }

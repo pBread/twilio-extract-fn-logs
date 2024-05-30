@@ -6,6 +6,7 @@ declare namespace NodeJS {
     TWILIO_API_SECRET: string;
 
     FUNCTION_SERVICE_SID: string;
+    FUNCTION_ENVIRONMENT_SID: string;
     FUNCTION_SID: string;
   }
 }
